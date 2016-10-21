@@ -1,0 +1,199 @@
+@import "variables.less";
+@import "less/_ui-variables.less";
+
+/*
+ * Globals
+ */
+
+/* Custom default button */
+.btn-default,
+.btn-default:hover,
+.btn-default:focus {
+    color: #333;
+    text-shadow: none; /* Prevent inheritance from `body` */
+    background-color: #fff;
+    border: 1px solid #fff;
+}
+
+// GENERAL
+.display-flex {
+    display: flex;
+    display: -webkit-flex;
+    min-height: 0px;
+    min-width: 0px;
+}
+
+.flex(@value) {
+    flex: @value @value 0;
+    -webkit-flex: @value @value 0;
+}
+
+.flex-direction(@value) {
+    flex-direction: @value;
+    -webkit-flex-direction: @value;
+}
+
+html, body {
+    background-color: @loading-backdrop-background-color;
+    color: white;
+    font-family: @fontName;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    .display-flex();
+    .flex-direction(column);
+    margin: 0px;
+}
+
+#error-modal {
+    .modal-body {
+        margin-bottom: 0;
+    }
+}
+
+#help-modal {
+    img {
+        display: block;
+        margin: 0 auto;
+        border: 1px solid @list-group-border;
+    }
+}
+
+#message-box {
+    .alert {
+        margin: 0;
+    }
+}
+
+#global-container {
+    .display-flex();
+    .flex(1);
+}
+
+.no-js #loader { display: none;  }
+.js #loader { display: block; position: absolute; left: 100px; top: 0; }
+.se-pre-con {
+  	position: fixed;
+  	left: 0px;
+  	top: 0px;
+  	width: 100%;
+  	height: 100%;
+  	z-index: 9999;
+  	background: url(../img/loading/chemical.gif) center no-repeat @loading-backdrop-background-color;
+}
+
+.list-group {
+    color: black;
+}
+.app-version {
+    font-size: 14px;
+    margin-bottom: 50px !important;
+}
+.label-choose-branch {
+    margin-bottom: 20px !important;
+    margin-top: 20px;
+}
+
+/* Extra markup and styles for table-esque vertical and horizontal centering */
+.with-icon {
+    margin-left: 10px;
+}
+.site-wrapper {
+    display: table;
+    width: 100%;
+    height: 100%; /* For at least Firefox */
+    min-height: 100%;
+    -webkit-box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+            box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+}
+.site-wrapper-inner {
+    display: table-cell;
+    vertical-align: top;
+}
+.cover-container {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Padding for spacing */
+.inner {
+    padding: 30px;
+}
+#project-branches {
+  float: right;
+  left: -50%;
+  position: relative;
+  text-align: left;
+  .list-available-branches {
+      left: 50%;
+      list-style-type: none;
+      padding: 0px;
+      position:relative;
+      li {
+          float: left;
+          position: relative;
+          a {
+              background-color: white;
+              border: 1px solid transparent;
+              border-radius: 0px;
+              color: black;
+              float: left;
+              height: 75px;
+              line-height: 60px;
+              margin: 10px;
+              padding: 10px 15px;
+              text-align: center;
+              text-decoration:none;
+              white-space:nowrap;
+              width: 150px;
+              &.box {
+                  position: relative;
+                  display: inline-block;
+                  width: 100px;
+                  height: 100px;
+                  line-height: 80px;
+                  background-color: white;
+                  border-radius: 5px;
+                  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                  border-radius: 0px;
+                  -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+                  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+                  &::after {
+                      content: "";
+                      border-radius: 5px;
+                      position: absolute;
+                      z-index: -1;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                      opacity: 0;
+                      -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+                      transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+                  }
+                  &:hover {
+                      background-color: black;
+                      color: white;
+                      -webkit-transform: scale(1.25, 1.25);
+                      transform: scale(1.25, 1.25);
+                      &::after{
+                          opacity: 1;
+                      }
+                  }
+              }
+          }
+      }
+  }
+}
+@import "less/_masthead.less";
+@import "less/_cover.less";
+@import "less/_footer.less";
+
+/*
+ *  PAGES
+ */
+/* Settings */
+@import "less/_settings.less";

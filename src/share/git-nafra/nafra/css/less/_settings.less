@@ -1,0 +1,80 @@
+/* Settings */
+.list-group-item {
+    border: none;
+    padding-bottom: 0px;
+    padding-top: 0px;
+}
+.settings-container {
+    background-color: @page-background-color;
+    left: 0px;
+    min-height: 100%;
+    padding: 2% 5% 5%;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 100%;
+    color: #000;
+    z-index: 9990;
+}
+#settingsTabContent {
+    .tab-pane {
+        padding: 20px;
+    }
+}
+.label-data-entry {
+    color: @label-data-entry-color;
+}
+.version-entry {
+    .input-control {
+        color: black;
+    }
+}
+.tabcontrol {
+    .frames .frame {
+        background-color: #1d1d1d;
+        .input-control {
+            color: black;
+        }
+        .metro-overwrite {
+            margin: 0px;
+            padding: 0px;
+            li {
+                float: left !important;
+                margin-right: 20px !important;
+                width: auto !important;
+            }
+        }
+    }
+    .tabs li {
+        a {
+            color: #2086bf;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: none;
+        }
+        &.active a {
+          text-decoration: none;
+          text-shadow: none;
+        }
+    }
+}
+@media screen and (max-width: 640px) {
+    .tile-area {
+        overflow-y: scroll;
+    }
+    .tile-area-controls {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .tile-area {
+        overflow-y: scroll;
+    }
+
+    .tile-area-controls {
+        display: none;
+    }
+
+}

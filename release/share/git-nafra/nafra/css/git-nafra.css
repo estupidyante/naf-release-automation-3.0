@@ -1,0 +1,349 @@
+.list-unstyled {
+  margin: 0px;
+}
+/*
+ * Globals
+ */
+/* Custom default button */
+.btn-default,
+.btn-default:hover,
+.btn-default:focus {
+  color: #333;
+  text-shadow: none;
+  /* Prevent inheritance from `body` */
+  background-color: #fff;
+  border: 1px solid #fff;
+}
+.display-flex {
+  display: flex;
+  display: -webkit-flex;
+  min-height: 0px;
+  min-width: 0px;
+}
+html,
+body {
+  background-color: #191f26;
+  color: white;
+  font-family: "Segoe UI", "Open Sans", serif;
+  height: 100%;
+  width: 100%;
+}
+body {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  display: -webkit-flex;
+  min-height: 0px;
+  min-width: 0px;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+  margin: 0px;
+}
+#error-modal .modal-body {
+  margin-bottom: 0;
+}
+#help-modal img {
+  display: block;
+  margin: 0 auto;
+  border: 1px solid #dddddd;
+}
+#message-box .alert {
+  margin: 0;
+}
+#global-container {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  display: -webkit-flex;
+  min-height: 0px;
+  min-width: 0px;
+  flex: 1 1 0;
+  -webkit-flex: 1 1 0;
+}
+.no-js #loader {
+  display: none;
+}
+.js #loader {
+  display: block;
+  position: absolute;
+  left: 100px;
+  top: 0;
+}
+.se-pre-con {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url(../img/loading/chemical.gif) center no-repeat #191f26;
+}
+.list-group {
+  color: black;
+}
+.app-version {
+  font-size: 14px;
+  margin-bottom: 50px !important;
+}
+.label-choose-branch {
+  margin-bottom: 20px !important;
+  margin-top: 20px;
+}
+/* Extra markup and styles for table-esque vertical and horizontal centering */
+.with-icon {
+  margin-left: 10px;
+}
+.site-wrapper {
+  display: table;
+  width: 100%;
+  height: 100%;
+  /* For at least Firefox */
+  min-height: 100%;
+  -webkit-box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+}
+.site-wrapper-inner {
+  display: table-cell;
+  vertical-align: top;
+}
+.cover-container {
+  margin-right: auto;
+  margin-left: auto;
+}
+/* Padding for spacing */
+.inner {
+  padding: 30px;
+}
+#project-branches {
+  float: right;
+  left: -50%;
+  position: relative;
+  text-align: left;
+}
+#project-branches .list-available-branches {
+  left: 50%;
+  list-style-type: none;
+  padding: 0px;
+  position: relative;
+}
+#project-branches .list-available-branches li {
+  float: left;
+  position: relative;
+}
+#project-branches .list-available-branches li a {
+  background-color: white;
+  border: 1px solid transparent;
+  border-radius: 0px;
+  color: black;
+  float: left;
+  height: 75px;
+  line-height: 60px;
+  margin: 10px;
+  padding: 10px 15px;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  width: 150px;
+}
+#project-branches .list-available-branches li a.box {
+  position: relative;
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+  line-height: 80px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 0px;
+  -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+#project-branches .list-available-branches li a.box::after {
+  content: "";
+  border-radius: 5px;
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+#project-branches .list-available-branches li a.box:hover {
+  background-color: black;
+  color: white;
+  -webkit-transform: scale(1.25, 1.25);
+  transform: scale(1.25, 1.25);
+}
+#project-branches .list-available-branches li a.box:hover::after {
+  opacity: 1;
+}
+/* Header */
+.masthead-brand {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.masthead-nav > li {
+  display: inline-block;
+}
+.masthead-nav > li + li {
+  margin-left: 20px;
+}
+.masthead-nav > li > a {
+  padding-right: 0;
+  padding-left: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  /* IE8 proofing */
+  color: rgba(255, 255, 255, 0.75);
+  border-bottom: 2px solid transparent;
+}
+.masthead-nav > li > a:hover,
+.masthead-nav > li > a:focus {
+  background-color: transparent;
+  border-bottom-color: #a9a9a9;
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+.masthead-nav > .active > a,
+.masthead-nav > .active > a:hover,
+.masthead-nav > .active > a:focus {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+@media (min-width: 768px) {
+  .masthead-brand {
+    float: left;
+  }
+  .masthead-nav {
+    float: right;
+  }
+}
+/*
+ * Cover
+ */
+.cover {
+  padding: 0 20px;
+  text-align: center;
+}
+.cover .cover-heading {
+  font-size: 72px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+.cover .lead {
+  margin-bottom: 0px;
+}
+.cover .btn-lg {
+  font-weight: bold;
+  margin-bottom: 40px;
+  margin-top: 40px;
+  padding: 10px 20px;
+}
+/* Footer */
+.mastfoot {
+  color: #999;
+  /* IE8 proofing */
+  color: rgba(255, 255, 255, 0.5);
+}
+/*
+ * Affix and center
+ */
+@media (min-width: 768px) {
+  /* Pull out the header and footer */
+  .masthead {
+    position: fixed;
+    top: 0;
+  }
+  .mastfoot {
+    position: fixed;
+    bottom: 0;
+  }
+  /* Start the vertical centering */
+  .site-wrapper-inner {
+    vertical-align: middle;
+  }
+  /* Handle the widths */
+  .masthead,
+  .mastfoot,
+  .cover-container {
+    width: 100%;
+    /* Must be percentage or pixels for horizontal alignment */
+  }
+}
+/*
+ *  PAGES
+ */
+/* Settings */
+/* Settings */
+.list-group-item {
+  border: none;
+  padding-bottom: 0px;
+  padding-top: 0px;
+}
+.settings-container {
+  background-color: #ffffff;
+  left: 0px;
+  min-height: 100%;
+  padding: 2% 5% 5%;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 100%;
+  color: #000;
+  z-index: 9990;
+}
+#settingsTabContent .tab-pane {
+  padding: 20px;
+}
+.label-data-entry {
+  color: #3d3cb4;
+}
+.version-entry .input-control {
+  color: black;
+}
+.tabcontrol .frames .frame {
+  background-color: #1d1d1d;
+}
+.tabcontrol .frames .frame .input-control {
+  color: black;
+}
+.tabcontrol .frames .frame .metro-overwrite {
+  margin: 0px;
+  padding: 0px;
+}
+.tabcontrol .frames .frame .metro-overwrite li {
+  float: left !important;
+  margin-right: 20px !important;
+  width: auto !important;
+}
+.tabcontrol .tabs li a {
+  color: #2086bf;
+  text-decoration: none;
+}
+.tabcontrol .tabs li a:hover {
+  text-decoration: none;
+}
+.tabcontrol .tabs li.active a {
+  text-decoration: none;
+  text-shadow: none;
+}
+@media screen and (max-width: 640px) {
+  .tile-area {
+    overflow-y: scroll;
+  }
+  .tile-area-controls {
+    display: none;
+  }
+}
+@media screen and (max-width: 320px) {
+  .tile-area {
+    overflow-y: scroll;
+  }
+  .tile-area-controls {
+    display: none;
+  }
+}

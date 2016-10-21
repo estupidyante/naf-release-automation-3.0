@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="62px" height="50px" viewBox="0 0 62 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
+    <title>downloads_chromeos</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="design" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="050-tv_desktop_download" sketch:type="MSArtboardGroup" transform="translate(-612.000000, -515.000000)">
+            <g id="Devices" sketch:type="MSLayerGroup" transform="translate(0.000000, 419.000000)">
+                <g id="Chrome-OS" transform="translate(599.000000, 97.000000)" sketch:type="MSShapeGroup">
+                    <g id="downloads_chromeos" transform="translate(14.000000, 0.000000)">
+                        <path d="M14,48 L46,48" id="Stroke-1" stroke="#4A4A4A" stroke-width="2" stroke-linecap="square"></path>
+                        <path d="M0,0 L60,0 L60,38 L0,38 L0,0 L0,0 Z" id="Stroke-2" stroke="#4A4A4A" stroke-width="2" stroke-linecap="square"></path>
+                        <g id="Shape" transform="translate(19.000000, 9.000000)" fill="#4A4A4A">
+                            <path d="M10.5,15.873375 C9.43359375,15.873375 8.463,15.5859375 7.5875625,15.012375 C6.712125,14.4381563 6.055875,13.699875 5.6188125,12.7975313 L1.3125,5.25 C0.41015625,6.86371875 0,8.66840625 0,10.5 C0,13.125 0.8544375,15.4153125 2.5633125,17.3702813 C4.2721875,19.32525 6.3984375,20.4940313 8.94140625,20.8772813 L11.9870625,15.6069375 C11.6805938,15.6968438 11.169375,15.873375 10.5,15.873375 Z M7.19840625,6.25471875 C8.16834375,5.5033125 9.26953125,5.25 10.5,5.25 L19.5234375,5.25 C18.5935313,3.6645 17.3289375,2.3244375 15.7296563,1.39453125 C14.1297188,0.46528125 12.3867188,0 10.5,0 C8.859375,0 7.3276875,0.34846875 5.90625,1.0460625 C4.48415625,1.743 3.168375,2.75821875 2.20434375,4.060875 L5.25,9.1875 C5.5505625,8.01215625 6.22715625,7.0074375 7.19840625,6.25471875 Z M20.2105312,6.5625 L14.109375,6.5625 C15.1757812,7.62890625 15.873375,8.99653125 15.873375,10.5 C15.873375,11.6215312 15.5590312,12.6465937 14.9296875,13.5765 L10.623375,21 C13.4944687,20.9724375 15.941625,19.9335937 17.9655,17.8828125 C19.9880625,15.8320312 21,13.3710937 21,10.5 C21,9.16059375 20.77425,7.751625 20.2105312,6.5625 Z M10.5,6.5625 C12.6748125,6.5625 14.4375,8.3251875 14.4375,10.5 C14.4375,12.6748125 12.6748125,14.4375 10.5,14.4375 C8.3251875,14.4375 6.5625,12.6748125 6.5625,10.5 C6.5625,8.3251875 8.3251875,6.5625 10.5,6.5625 Z" id="Fill-1"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

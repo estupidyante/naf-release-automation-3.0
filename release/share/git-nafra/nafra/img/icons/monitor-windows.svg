@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="62px" height="50px" viewBox="0 0 62 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
+    <title>downloads_windows</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="design" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="050-tv_desktop_download" sketch:type="MSArtboardGroup" transform="translate(-92.000000, -515.000000)">
+            <g id="Devices" sketch:type="MSLayerGroup" transform="translate(0.000000, 419.000000)">
+                <g id="Windows" transform="translate(87.000000, 97.000000)" sketch:type="MSShapeGroup">
+                    <g id="downloads_windows" transform="translate(6.000000, 0.000000)">
+                        <path d="M14,48 L46,48" id="Stroke-1" stroke="#4A4A4A" stroke-width="2" stroke-linecap="square"></path>
+                        <path d="M0,0 L60,0 L60,38 L0,38 L0,0 L0,0 Z" id="Stroke-2" stroke="#4A4A4A" stroke-width="2" stroke-linecap="square"></path>
+                        <path d="M27.309369,11.3447576 L21,12.6095235 L21,18.4609755 L27.309325,18.3543053 L27.309325,11.3447576 M39,19.8428756 L28.7530322,19.6666667 L28.7530322,26.9438171 L39,29 L39,19.8428756 M27.309369,19.6448116 L21.0000439,19.5371701 L21.0000439,25.3876508 L27.309369,26.6533881 L27.309369,19.6448116 M39,9 L28.7530322,11.0542844 L28.7530322,18.3314348 L39,18.1561972 L39,9" id="Shape" fill="#4A4A4A"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

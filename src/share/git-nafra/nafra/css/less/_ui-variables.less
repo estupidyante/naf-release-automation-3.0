@@ -1,0 +1,50 @@
+@fontName: "Segoe UI", "Open Sans", serif;
+@fontNameLight: "Segoe UI Light", "Open Sans Light", serif;
+@fontNameBold: "Segoe UI Bold", "Open Sans Bold", serif;
+
+@loading-backdrop-background-color: #191F26;
+@page-background-color: #FFFFFF;
+@label-data-entry-color: #3D3CB4;
+
+@color-white:        #ffffff;
+@color-lightgray:    #fdfdfd;
+@color-orange:       #ffa500;
+
+@diff-offset-light:  #d6adeb;
+@diff-offset-dark:   #9933cc;
+@diff-added-light:   #c5e26d;
+@diff-added-dark:    #669900;
+@diff-removed-light: #ff9494;
+@diff-removed-dark:  #cc0000;
+@separator-line:     @list-group-border;
+@log-view-opacity:   0.9;
+
+.no-select() {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.list-unstyled {
+    margin: 0px;
+}
+.display-flex() {
+    display: flex;
+    display: -webkit-flex;
+    min-height: 0;
+    min-width: 0;
+}
+.align-items(@value) {
+    align-items: @value;
+    -webkit-align-items: @value;
+}
+.flex(@value) {
+    flex: @value @value 0;
+    -webkit-flex: @value @value 0;
+}
+.flex-direction(@value) {
+    flex-direction: @value;
+    -webkit-flex-direction: @value;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "git-nafra",
+  "version": "1.0.0",
+  "authors": [
+    "Harold Magbanua <estupidyante@gmail.com>"
+  ],
+  "description": "A NAF Release Automation web user interface for git",
+  "keywords": [
+    "git",
+    "gui"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "bootstrap": "~3.2.0"
+  }
+}

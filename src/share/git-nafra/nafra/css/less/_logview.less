@@ -1,0 +1,125 @@
+/* Log View */
+#branchName {
+    font-size: 30px;
+    color: burlywood;
+}
+#history-view {
+    .display-flex();
+    .flex(1);
+}
+#log-view {
+    .flex(1);
+    background-color: white;
+    overflow-y: auto;
+    cursor: default;
+    margin-bottom: 0;
+    position: relative;
+    svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        path {
+            stroke-width: 2;
+            fill: none;
+        }
+        circle {
+            stroke: none;
+            fill: @gray;
+        }
+    }
+    .log-entry {
+        padding: @padding-small-vertical @padding-small-horizontal;
+        background-color: transparent;
+        margin: 0;
+        border-top-width: 0;
+        &:hover {
+            background-color: rgba((  red(@list-group-hover-bg) - 25) / @log-view-opacity,
+                                   (green(@list-group-hover-bg) - 25) / @log-view-opacity,
+                                   ( blue(@list-group-hover-bg) - 25) / @log-view-opacity,
+                                   @log-view-opacity);
+        }
+        &.active {
+            background-color: rgba((  red(@brand-primary) - 25) / @log-view-opacity,
+                                   (green(@brand-primary) - 25) / @log-view-opacity,
+                                   ( blue(@brand-primary) - 25) / @log-view-opacity,
+                                   @log-view-opacity);
+            header h6 a {
+                color: @component-active-color;
+            }
+        }
+        header {
+            .display-flex();
+            .align-items(baseline);
+            h6 {
+                font-weight: bold;
+                margin-top: 0;
+                a {
+                    color: #777777;
+                }
+            }
+            .badge {
+                font-family: @font-family-monospace;
+            }
+            .log-entry-date {
+                margin-left: auto;
+            }
+        }
+        .list-group-item-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+    .log-entry-more {
+        padding: @padding-large-vertical @padding-large-horizontal;
+        a {
+            cursor: pointer;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+        }
+    }
+}
+.commit-header {
+    background-color: #fafafa;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    color: black;
+    font-size: 14px;
+    padding: 5px 10px;
+}
+.commit {
+    .commit-info-block {
+        margin-bottom: 15px;
+        padding: 15px;
+        .commit-row-info {
+            color: #5c5c5c;
+            font-size: 15px;
+            line-height: 1.35;
+        }
+    }
+    .commit-actions {
+        float: right;
+        .commit-short-id {
+            font-size: 14px;
+        }
+    }
+    .commit-row-description {
+        margin: 10px;
+        white-space: pre-line;
+        word-break: normal;
+    }
+}
+.commit-row-title {
+    .text-expander {
+        display: inline-block;
+        background: #fafafa;
+        color: #8f8f8f;
+        padding: 0 5px;
+        cursor: pointer;
+        border: 1px solid #c6cacf;
+        border-radius: 2px;
+        margin-left: 5px;
+        line-height: 1;
+    }
+}

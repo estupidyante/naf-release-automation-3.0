@@ -1,0 +1,700 @@
+#!/usr/bin/env python
+
+import argparse, codecs, datetime, os, platform, posixpath, shlex, socket, subprocess, sys, webbrowser
+import re, stat, json, distutils.dir_util, zipfile, glob, time, shutil, webbrowser, ftplib
+from distutils.dir_util import copy_tree, remove_tree
+
+if sys.version > '3':
+	from http.server import SimpleHTTPRequestHandler, HTTPServer
+	from urllib.parse import unquote, urlparse
+else:
+	from SimpleHTTPServer import SimpleHTTPRequestHandler
+	from BaseHTTPServer import HTTPServer
+	from urllib import unquote
+	from urlparse import urlparse
+
+import httplib2
+import argparse
+from apiclient import discovery
+from apiclient import errors
+from apiclient import http
+import oauth2client
+from oauth2client import client
+from oauth2client import file
+from oauth2client import tools
+from oauth2client.file import Storage
+from apiclient.discovery import build
+from oauth2client.client import OAuth2WebServerFlow
+
+
+
+IS_WINDOWS = platform.system() == "Windows"
+allowed_hosts = ["127.0.0.1", "localhost"]
+# get the location of the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# read the config.json
+# file directory rep. is different per OS, linux based accepts /, windows \
+if os.name == "posix":
+	config = json.loads(open(script_dir + '/config.json').read())
+	osslash = "/"
+else:
+	config = json.loads(open(script_dir + '\config.json').read())
+	osslash = "\\"
+
+#--------
+# Copy your credentials from the console
+# https://console.developers.google.com
+CLIENT_ID = '440774611029-8s3aqf4b433pi14tf5nmiji2k8od9r40.apps.googleusercontent.com'
+CLIENT_SECRET = 'l4F3HGpgNd_5RY8aRw_VfkeH'
+APPLICATION_NAME = 'NAF Release Automation 3.0'
+
+OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
+REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+
+CREDS_FILE = os.path.join(os.path.dirname(__file__), 'credentials.json')
+
+# read the configuration files, lets check the version of nafra
+version = config['version']
+
+
+#----------
+
+def myprint(messgae):
+	print(message)
+	sys.stdout.flush()
+
+
+#----------
+
+def deleteFiles(path, file):
+	os.chmod(path + osslash + file, 02755)
+	if os.path.isfile(path + osslash + file):
+		os.remove(path + osslash + file)
+	elif os.path.isdir(path + osslash + file):
+		dirlist = [d for d in os.listdir(path + osslash + file)]
+		for dir in dirlist:
+			deleteFiles(path + osslash + file, dir)
+
+#----------
+
+def zipDir(path, ziph):
+	for root, dirs, files in os.walk(path):
+		for file in files:
+			ziph.write(os.path.join(root, file))
+
+#----------
+
+def cleanUpDir(dirlist, folder_path):
+	for file in dirlist:
+		os.chmod(folder_path + file, 02755)
+		remove_tree(folder_path + file)
+
+#----------
+def cleanUpFiles(fileList):
+	for file in fileList:
+		path = os.path.dirname(os.path.abspath(file))
+		deleteFiles(path, file)
+
+#----------
+def downloadFile(item, dest_folder):
+    file_title = item['title']
+    if file_title == 'NAF: Release Notes':
+        file_title = file_title.replace(":", "")
+        file_title = file_title + "-" + temp_release_name
+    else:
+        file_title = file_title.replace(":", "_")
+
+    file_title = file_title.replace(" ", "")
+
+    outfile = os.path.join(dest_folder, '%s.pdf' % file_title)
+    download_url = None
+
+    if 'exportLinks' in item and 'application/pdf' in item['exportLinks']:
+        download_url = item['exportLinks']['application/pdf']
+    elif 'downloadUrl' in item:
+        download_url = item['downloadUrl']
+    else:
+        myprint('ERROR --- getting %s' % item.get('title'))
+        myprint(item)
+        myprint(dir(item))
+
+    if download_url:
+        myprint('downloading %s' % item.get('title'))
+        resp, content = drive_service._http.request(download_url)
+        if resp.status == 200:
+            if os.path.isfile(outfile):
+                myprint('ERROR, %s already exist' % outfile)
+            else:
+                with open(outfile, 'wb') as f:
+                    f.write(content)
+                myprint('DONE! --- downloading %s' % item.get('title'))
+        else:
+            myprint('ERROR --- downloading %s' % item.get('title'))
+            myprint('RETRY --- trying to download %s' % item.get('title'))
+            downloadFile(item, dest_folder)
+
+#-------
+def apiDownload(folder_id, OUT_PATH):
+    for item in listFiles(drive_service, folder_id):
+        file = getFiles(drive_service, item['id'])
+
+        if file['id'] in file_download['exclude_files']:
+            myprint('skipping %s - it is not included' % file['title'])
+        elif file['mimeType'] == 'application/vnd.google-apps.document':
+            downloadFile(file, OUT_PATH)
+        elif file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
+            downloadFile(file, OUT_PATH)
+        else:
+            myprint('skipping %s - it is not included' % file['title'])
+
+
+
+
+
+class NAFRAHttpServer(HTTPServer):
+	def __init__(self, server_address, RequestHandlerClass, bind_and_activate = True):
+		if not isinstance(server_address, tuple) or len(server_address) < 2:
+			raise TypeError("server_address must be a tuple (address, port)")
+		host = server_address[0]
+		port = server_address[1]
+
+		if host is None or host == "":
+			HTTPServer.__init__(self, server_address, RequestHandlerClass, bind_and_activate)
+		else:
+			address_info = socket.getaddrinfo(host, port, 0, 0, socket.IPPROTO_TCP)[0]
+			self.address_family = address_info[0]
+			HTTPServer.__init__(self, address_info[4], RequestHandlerClass, bind_and_activate)
+
+
+
+
+
+class NAFRARequestHandler(SimpleHTTPRequestHandler):
+	WEB_ROOT = None
+	REPO_ROOT = None
+
+	@classmethod
+	def initialize(cls, repo_root):
+		web_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0]))))
+		web_root = os.path.join(web_root, "share", "git-nafra", "nafra")
+		NAFRARequestHandler.WEB_ROOT = web_root
+		NAFRARequestHandler.REPO_ROOT = repo_root
+
+
+	def translate_path(self, path):
+		if self.is_git_request():
+			return path
+
+		# abandon query parameters
+		path = path.split('?', 1)[0]
+		path = path.split('#', 1)[0]
+		# Don't forget explicit trailing slash when normalizing
+		trailing_slash = True if path.rstrip().endswith('/') else False
+		path = posixpath.normpath(unquote(path))
+		words = path.split('/')
+		words = filter(None, words)
+		path = NAFRARequestHandler.WEB_ROOT
+		for word in words:
+			drive, word = os.path.splitdrive(word)
+			head, word = os.path.split(word)
+			if word in (os.curdir, os.pardir): continue
+			path = os.path.join(path, word)
+		if trailing_slash:
+			path += '/'
+		return path
+
+
+	def process(self, cmd, stdin, add_headers, add_footers, env = None):
+		print(self)
+		if add_headers:
+			self.send_response(200)
+			self.end_headers()
+		# Convention : send first all qit output, the stderr.
+		# Finally we add footers: a blank line followed by key / value pairs as in HTTP headers
+		if IS_WINDOWS:
+			# On windows we cannot pipe the process output directly to the socket
+			nafra_process = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = NAFRARequestHandler.REPO_ROOT, env = env)
+			nafra_process.stdin.write(stdin)
+			nafra_process.stdin.close()
+			bufferlen = 64 * 1024
+			while True:
+				data = nafra_process.stdout.read(bufferlen)
+				self.wfile.write(data)
+				if len(data) < bufferlen:
+					break
+			stderr = nafra_process.stderr.read()
+			nafra_process.wait()
+		else:
+			nafra_process = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = NAFRARequestHandler.REPO_ROOT, env = env)
+			stdout, stderr = nafra_process.communicate(stdin)
+
+		if add_footers:
+			self.wfile.write(stderr)
+			self.wfile.write(b"\r\n")
+			self.wfile.write(codecs.encode("\r\nGit-Stderr-Length: " + str(len(stderr)), "utf-8"))
+			self.wfile.write(codecs.encode("\r\nGit-Return-Code: " + str(nafra_process.returncode), "utf-8"))
+		elif nafra_process.returncode != 0:
+			print(stderr)
+
+
+	def send_text(self, http_status, text):
+		self.send_response(http_status)
+		self.send_header("Content-Type", "text/plain")
+		self.send_header("Content-Length", len(text))
+		self.end_headers()
+		self.wfile.write(text)
+
+
+	def is_view_only(self):
+		host = self.headers.get("Host", "").split(":")[0]
+		return host not in allowed_hosts
+
+
+	def is_git_request(self):
+		return self.headers.get("User-Agent", "").startswith("git/")
+
+
+	def is_node_exists(self):
+		node = os.path.exists(NAFRARequestHandler.REPO_ROOT + osslash + "node_modules")
+		sys.stdout.flush()
+		return node
+
+
+	def get_naf_version(self):
+		tempFile = posixpath.normpath(unquote(NAFRARequestHandler.REPO_ROOT)) + osslash + "model.js"
+		print tempFile
+		sys.stdout.flush()
+		os.chmod(tempFile, 02755)
+
+		lines = ""
+		with open(tempFile, 'rb', 0) as searchFile:
+			for line in searchFile:
+				m = re.search('NAF\-[^\"]*', line)
+				if m:
+					lines = line[m.start():m.end()]
+
+		if lines == "":
+			prev_version = "Previous version not found"
+		else:
+			prev_version = lines
+
+		return prev_version
+
+
+	def get_script_config(self):
+		config_str = json.dumps(config)
+		return config_str
+
+
+	def update_version(self, new_version, branch):
+		tempFile = posixpath.normpath(unquote(NAFRARequestHandler.REPO_ROOT)) + osslash + "model.js"
+		os.chmod(tempFile, 02755)
+
+		prev_version = self.get_naf_version()
+		replacements = {prev_version:new_version}
+		lines = []
+		with open(tempFile) as inFile:
+			for line in inFile:
+				for src, target in replacements.iteritems():
+					line = line.replace(src, target)
+				lines.append(line)
+		with open(tempFile, 'w') as outFile:
+			for line in lines:
+				outFile.write(line)
+
+		commit_msg = "Updated NAF version to " + new_version
+		subprocess.call(["git", "add", "model.js"], cwd=NAFRARequestHandler.REPO_ROOT)
+		subprocess.call(["git", "commit", "-m", commit_msg], cwd=NAFRARequestHandler.REPO_ROOT)
+		subprocess.call(["git", "push", "origin", branch], cwd=NAFRARequestHandler.REPO_ROOT)
+
+		print 'Done, updating version.'
+
+
+	def debugConfUpdate(self, conf_dir, branch):
+		tempConfFile = posixpath.normpath(unquote(NAFRARequestHandler.REPO_ROOT)) + osslash + conf_dir + osslash + "conf" + osslash + "conf.js"
+		os.chmod(tempConfFile, 02755)
+
+		debug_src = '"debug":' + str(2)
+		if branch not in ['master', 'fr13_4.3']:
+			debug_target = '"debug":' + str(0)
+		else:
+			debug_target = '"debug":' + str(-1)
+
+		replaceIt = {debug_src:debug_target}
+		debugLines = []
+
+		with open(tempConfFile) as inFile:
+			for debugLine in inFile:
+				for src, target in replaceIt.iteritems():
+					debugLine = debugLine.replace(src, target)
+				debugLines.append(debugLine)
+		with open(tempConfFile, 'w') as outFile:
+			for debugLine in debugLines:
+				outFile.write(debugLine)
+
+		print 'Done, modifying config file.'
+
+
+	def debugLoadFirstUpdate(self, conf_dir, branch):
+		tempLFirstFile = posixpath.normpath(unquote(NAFRARequestHandler.REPO_ROOT)) + osslash + conf_dir + osslash + "app" + osslash + "loadFirst.js"
+		os.chmod(tempLFirstFile, 02755)
+
+		debug_src = 'var debug           = true;'
+		debug_target = 'var debug           = false;'
+		replaceIt = {debug_src:debug_target}
+		debugLines = []
+
+		with open(tempLFirstFile) as inFile:
+			for debugLine in inFile:
+				for src, target in replaceIt.iteritems():
+					debugLine = debugLine.replace(src, target)
+				debugLines.append(debugLine)
+		with open(tempLFirstFile, 'w') as outFile:
+			for debugLine in debugLines:
+				outFile.write(debugLine)
+
+		print 'Done, modifying loadFirst file.'
+
+
+	def create_release_folder(self, new_version, branch, option_type):
+		temp_release_name = new_version[4:]
+		release_name_dir = time.strftime('%Y-%m-%d') + "_" + temp_release_name
+		if branch not in ['master', 'fr13_4.3']:
+			src = NAFRARequestHandler.REPO_ROOT + osslash + "release"
+		else:
+			src = NAFRARequestHandler.REPO_ROOT + osslash + "builds"
+
+		os.chmod(src, 02755)
+		if not os.path.exists(new_version):
+			os.rename(src, new_version)
+		else:
+			fileList = [f for f in os.listdir(".") if f == (new_version)]
+			cleanUpFiles(fileList)
+
+			dirlist = [f for f in os.listdir(".") if f == (new_version)]
+			cleanUpDir(dirlist, NAFRARequestHandler.REPO_ROOT + osslash)
+
+			os.rename(src, new_version)
+
+		sys.stdout.flush()
+
+		if not os.path.exists(release_name_dir):
+			os.makedirs(release_name_dir)
+		else:
+			fileList = [f for f in os.listdir(".") if f == (release_name_dir)]
+			cleanUpFiles(fileList)
+
+			dirlist = [f for f in os.listdir(".") if f == (release_name_dir)]
+			cleanUpDir(dirlist, NAFRARequestHandler.REPO_ROOT + osslash)
+
+			os.makedirs(release_name_dir)
+
+		sys.stdout.flush()
+
+		if __name__ == '__main__':
+			zipf = zipfile.ZipFile(new_version + '.zip', 'w')
+			zipDir(new_version, zipf)
+			zipf.close()
+
+		if os.path.exists(new_version + ".zip"):
+			shutil.move(new_version + ".zip", release_name_dir)
+
+		sys.stdout.flush()
+
+		fileList = [f for f in os.listdir(".") if f == (new_version)]
+		cleanUpFiles(fileList)
+
+		dirlist = [f for f in os.listdir(".") if f == (new_version)]
+		cleanUpDir(dirlist, NAFRARequestHandler.REPO_ROOT + osslash)
+
+		print 'Done, creating release folder.'
+		sys.stdout.flush()
+
+
+	def process_automation(self, new_version, branch, option_type):
+		isNode = self.is_node_exists()
+
+		if option_type == '/complete':
+			# update the version to the new_version
+			self.update_version(new_version, branch)
+
+		if not isNode:
+			# node_modules not installed
+			# install node_modules
+			subprocess.call(['npm', 'install'], shell=True)
+			subprocess.call(['npm', 'install grunt'], shell=True)
+
+		print branch
+		if option_type not in ['/apidoc', '/notesonly', '/ftponly']:
+			# grunt the files
+			subprocess.call("grunt", shell=True)
+
+			# check branch to determine which config files to be edit
+			if branch not in ['vtr', 'vtrDawn']:
+				self.debugConfUpdate('builds/production', branch)
+				self.debugLoadFirstUpdate('builds/production', branch)
+			else:
+				self.debugConfUpdate('release/build', branch)
+
+		self.create_release_folder(new_version, branch, option_type)
+		self.wfile.write(b"HTTP/1.0 200 OK\r\n")
+		self.wfile.flush()
+		self.send_text(200, codecs.encode('Done, without errors.', "utf-8"))
+
+	def process_http_backend(self):
+		parsed_path = urlparse(self.path)
+
+		env = {}
+		env["GIT_PROJECT_ROOT"] = NAFRARequestHandler.REPO_ROOT + osslash + ".git"
+		env["GIT_HTTP_EXPORT_ALL"] = ""
+		env["REQUEST_METHOD"] = self.command
+		env["REMOTE_ADDR"] = self.client_address[0]
+		env["PATH_INFO"] = parsed_path.path
+		env["QUERY_STRING"] = parsed_path.query
+
+		if 'Content-Length' in self.headers:
+			contentLength = self.headers['Content-Length']
+			env["CONTENT_TYPE"] = contentLength
+			inputData = self.rfile.read(int(contentLength))
+		else:
+			env["CONTENT_LENGTH"] = '0'
+			inputData = b""
+
+		self.wfile.write(b"HTTP/1.0 200 OK\r\n")
+		self.wfile.flush()
+		self.process(['git', 'http-backend'], inputData, False, False, env)
+
+
+	def get_googlecredentials(self):
+		print CREDS_FILE
+		sys.stdout.flush()
+		storage = Storage(CREDS_FILE)
+        # credentials = storage.get()
+        # code = None
+
+        # if credentials is None:
+        #     # Run through the OAuth flow and retrieve credentials
+        #     flow = OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, OAUTH_SCOPE, REDIRECT_URI)
+        #     authorize_url = flow.step1_get_authorize_url()
+        #     webbrowser.open_new(authorize_url)
+
+        #     code = enterbox(msg='Enter verification code:', title='Google Drive Verification', default='paste your verification code here', strip=True)
+        #     if code is None:
+        #         sys.exit()
+
+        #     credentials = flow.step2_exchange(code)
+        #     storage.put(credentials)
+
+        # # Create an httplib2.Http object and authorize it with our credentials
+        # http_c = credentials.authorize(httplib2.Http())
+        # drive_service = build('drive', 'v2', http=http_c)
+
+	def do_GET(self):
+		if self.path.startswith("/git/cat-file/"):
+			obj = self.path[14:]
+			self.process(["git", "cat-file", "-p", obj], b"", True, False)
+		elif self.path == "/dirname":
+			wc = os.path.split(NAFRARequestHandler.REPO_ROOT)[1]
+			self.send_text(200, codecs.encode(wc, "utf-8"))
+		elif self.path == "/hostname":
+			self.send_text(200, codecs.encode(socket.gethostname(), "utf-8"))
+		elif self.path == "/viewonly":
+			vo = "1" if self.is_view_only() else "0"
+			self.send_text(200, codecs.encode(vo, "utf-8"))
+		elif self.path == "/repo_location":
+			fl = os.path.abspath(os.getcwd())
+			self.send_text(200, codecs.encode(fl, "utf-8"))
+		elif self.path == "/check_node":
+			cn = "1" if self.is_node_exists() else "0"
+			self.send_text(200, codecs.encode(cn, "utf-8"))
+		elif self.path == "/get_naf_version":
+			gv = self.get_naf_version()
+			self.send_text(200, codecs.encode(gv, "utf-8"))
+		elif self.path == "/get_config":
+			gsc = self.get_script_config()
+			self.send_text(200, codecs.encode(gsc, "utf-8"))
+		elif self.path == "/get_google_credentials":
+			gc = self.get_googlecredentials()
+			self.send_text(200, codecs.encode(gc, "utf-8"))
+		elif self.is_git_request():
+			self.process_http_backend()
+		else:
+			SimpleHTTPRequestHandler.do_GET(self)
+
+
+	def do_POST(self):
+		if self.path == "/git" :
+			content_length = int(self.headers["Content-Length"])
+			content = self.rfile.read(content_length)
+			# Convention : First line = git arguments, rest = git process stdin
+			i = content.find(b'\n')
+			if i != -1:
+				args = content[:i]
+				stdin = content[i + 1:]
+			else:
+				args = content
+				stdin = b""
+			cmd = shlex.split("git " + codecs.decode(args, "utf-8"))
+			action = cmd[1]
+			if not self.is_view_only() or args in ["branch", "branch -- remotes", "tag"] or action in ["show", "status", "log", "ls-tree"]:
+				self.process(cmd, stdin, True, True)
+			else:
+				self.send_error(403)
+		elif self.path in ['/complete', '/smokebuild', '/gruntonly', '/apidoc', '/notesonly', '/ftponly']:
+			content_length = int(self.headers["Content-Length"])
+			content = self.rfile.read(content_length)
+			i = content.find(b'\n')
+			if i != -1:
+				args = content[:i]
+				stdin = content[i + 1:]
+			else:
+				args = content
+				stdin = b""
+			print args
+			print stdin
+			self.process_automation(args, stdin, self.path)
+		elif self.is_git_request():
+			self.process_http_backend()
+		else:
+			SimpleHTTPRequestHandler.do_POST(self)
+# elif self.path == "/complete":
+# 	content_length = int(self.headers["Content-Length"])
+# 	content = self.rfile.read(content_length)
+# 	i = content.find(b'\n')
+# 	if i != -1:
+# 		args = content[:i]
+# 		stdin = content[i + 1:]
+# 	else:
+# 		args = content
+# 		stdin = b""
+# 	print args
+# 	print stdin
+# 	self.process_automation(args, stdin)
+# elif self.path == "/gruntonly":
+# 	content_length = int(self.headers["Content-Length"])
+# 	content = self.rfile.read(content_length)
+# 	i = content.find(b'\n')
+# 	if i != -1:
+# 		args = content[:i]
+# 		stdin = content[i + 1:]
+# 	else:
+# 		args = content
+# 		stdin = b""
+# 	print args
+# 	print stdin
+# 	self.process_automation(args, stdin, 'gruntonly')
+
+def auto_update():
+	repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))))
+	dot_git = os.path.join(repo_root, ".git")
+	if not os.path.exists(dot_git):
+		return
+	fetch_head = os.path.join(dot_git, "FETCH_HEAD")
+	if not os.path.exists(fetch_head):
+		fetch_head_mtime = 0.0
+	else:
+		fetch_head_mtime = os.stat(fetch_head).st_mtime
+	delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(fetch_head_mtime)
+	if delta > datetime.timedelta(14):
+		# Check if update is allowed
+		allow_autoupdate = read_config_boolean("autoupdate")
+		if not allow_autoupdate:
+			return
+
+		print("Checking for update...")
+		# Update the repository
+		subprocess.call(["git", "pull"], cwd = repo_root)
+		# Replace the current process with the updated one
+		os.execl(sys.executable, sys.executable, *sys.argv)
+
+
+def read_config_string(name, default = None):
+	nafra_process = subprocess.Popen(["git", "config", "--get", "nafra.{}".format(name)], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	out = codecs.decode(nafra_process.communicate()[0], "utf-8")
+	if nafra_process.returncode != 0:
+		# The key doesn't exist
+		return default
+	return out.strip()
+
+
+def read_config_boolean(name, default = False):
+	r = read_config_string(name)
+	if r == None:
+		return bool(default)
+	return str(r).lower() == "true"
+
+
+def get_setting_string(args, name, default = None):
+	if vars(args)[name] is not None:
+		return vars(args)[name]
+	return read_config_string(name, default)
+
+
+def get_setting_boolean(args, name, default = False):
+	if vars(args)[name] is not None:
+		return vars(args)[name]
+	return read_config_boolean(name, default)
+
+
+
+
+if __name__ == '__main__':
+	auto_update()
+	parser = argparse.ArgumentParser(description = "HTTP server for NAF Realase Automation git")
+	parser.add_argument("--port", type = int, help = "server port")
+	parser.add_argument("--repo-root", help = "repository root path. By default goes up a dir until a '.git' directory is found")
+	parser.add_argument("--allow-hosts", help = "what other host(s) are allowed to have write access")
+	parser.add_argument("--no-browser", dest = "nobrowser", action = "store_const", const = True, help = "do not start web browser")
+	parser.add_argument("--host", help = "the host nafra listens on (default is all)")
+
+	args = parser.parse_args()
+
+	if args.repo_root is None:
+		args.repo_root = os.path.abspath(os.getcwd())
+		while '.git' not in os.listdir(args.repo_root):
+			new_root = os.path.dirname(args.repo_root)
+			if new_root == args.repo_root:
+				args.repo_root = None
+				break
+			else:
+				args.repo_root = new_root
+
+	writeaccess = read_config_string("writeaccess")
+	if writeaccess is not None:
+		allowed_hosts = writeaccess.split(',') if writeaccess else []
+	if args.allow_hosts is not None:
+		allowed_hosts += args.allow_hosts.split(',')
+
+	if args.repo_root is None or '.git' not in os.listdir(args.repo_root):
+		sys.stderr.write("No git repository found\n")
+		sys.exit(1)
+
+	NAFRARequestHandler.initialize(args.repo_root)
+
+	args.port = get_setting_string(args, 'port', None)
+	port = int(args.port) if args.port is not None else 8080
+	host = get_setting_string(args, 'host', "")
+	httpd = None
+
+	while httpd is None:
+		try:
+			httpd = NAFRAHttpServer((host, port), NAFRARequestHandler)
+		except socket.error as e:
+			if args.port is not None:
+				sys.stderr.write("Port {} is already in use, try another one\n".format(port))
+				sys.exit(2)
+			else:
+				sys.stderr.write("Port {} is already in use, trying another one\n".format(port))
+				port += 1
+
+	url = "http://{}:{}".format(host if host else "localhost", port)
+	print("Serving at {}".format(url))
+	nobrowser = get_setting_boolean(args, "nobrowser")
+	if not nobrowser:
+		webbrowser.open(url)
+
+	try:
+		httpd.serve_forever()
+	except KeyboardInterrupt:
+		httpd.server_close()
+		sys.exit(0)

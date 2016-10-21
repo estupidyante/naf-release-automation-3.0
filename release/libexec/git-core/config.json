@@ -1,0 +1,43 @@
+{
+    "version":"3.1.3",
+    "release_path":"e:/NAF_release/",
+    "ftp_accounts":{
+        "empathylabs":{
+            "host":"ftp.ca.schange.com",
+            "user":"empathylabs",
+            "password":"zAyubFu/4a",
+            "path":"/toEmpathylabs/"
+        },
+        "metrological":{
+            "host":"ftp.emea.schange.com ",
+            "user":"metrological",
+            "password":"!4T6g1K1ro",
+            "path":"/toMetrological/FR13/NAF/"
+        },
+        "dawn":{
+            "host":"ftp.ca.schange.com",
+            "user":"dawn",
+            "password":"2egUyE3AtU",
+            "path":"/ToDawn/Releases/NAF/"
+        },
+        "vtr":{
+            "host": "ftp.ca.schange.com",
+            "user": "empathylabs",
+            "password": "zAyubFu/4a",
+            "path": "/toEmpathylabs"
+        }
+    },
+    "file_download":{
+        "folder_id":"0B67zU0mvJ8hMaTBkUkw5MHF4U2s",
+        "release_notes":"1RD8hm4IZHLh4XT0-ihL6q4xu0QlijmWPPDGrHUrUEnY",
+        "exclude_files":[
+            "1OjiMoTJ0_zfuknSWzs37WeWL8eZrR8kwo9USZlodzJ0",
+            "1azWEuvD94vRCe9e4y3cxdVeAj3H-ftVmDpf8t3y2hn8",
+            "1XiGfO2dPHSSPbNktUIHsBvKXvj1gytAYIzYOrlHgx7Y",
+            "13R4UJp_7vXtarmNFzrNvlB8Nz0_EwiMygEPLt1T6_sI",
+            "1YrxkuD4btAqvCdpr67A9jYatqBCWZCaPxRmdr6bM1Lk",
+            "1gKZdRd4SgNKNR8r7CGenljxer9T7gPKS5mDkInzh_HA",
+            "1Aj_Eag_CcLq8qhhqHUcPX6BUQjj6uAeXlzRNeBqS4pg"
+        ]
+    }
+}
