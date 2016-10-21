@@ -315,10 +315,10 @@ class NAFRARequestHandler(SimpleHTTPRequestHandler):
 		os.chmod(tempConfFile, 02755)
 
 		debug_src = '"debug":' + str(2)
-		if branch not in ['master', 'fr13_4.3']:
-			debug_target = '"debug":' + str(0)
-		else:
+		if branch not in ['vtr', 'vtrDawn']:
 			debug_target = '"debug":' + str(-1)
+		else:
+			debug_target = '"debug":' + str(0)
 
 		replaceIt = {debug_src:debug_target}
 		debugLines = []
@@ -359,10 +359,10 @@ class NAFRARequestHandler(SimpleHTTPRequestHandler):
 	def create_release_folder(self, new_version, branch, option_type):
 		temp_release_name = new_version[4:]
 		release_name_dir = time.strftime('%Y-%m-%d') + "_" + temp_release_name
-		if branch not in ['master', 'fr13_4.3']:
-			src = NAFRARequestHandler.REPO_ROOT + osslash + "release"
-		else:
+		if branch not in ['vtr', 'vtrDawn']:
 			src = NAFRARequestHandler.REPO_ROOT + osslash + "builds"
+		else:
+			src = NAFRARequestHandler.REPO_ROOT + osslash + "release"
 
 		os.chmod(src, 02755)
 		if not os.path.exists(new_version):
