@@ -34,7 +34,7 @@ You can deactivate auto-update by removing the `autoupdate = true` line from the
 Simply clone the repository and install the alias
 
 ```
-git clone https://estupidyante@bitbucket.org/seachangeph/naf-release-automation-3.0.git
+git clone https://github.com/estupidyante/naf-release-automation-3.0.git
 git config --global alias.nafra \!$PWD/git-nafra/release/libexec/git-core/git-nafra
 ```
 
