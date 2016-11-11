@@ -181,6 +181,7 @@ nafra.createProcessView = function(mainView) {
 
     self.fetchBranches = function(section, title, id, gitCommand) {
         nafra.process('git', gitCommand, function(data) {
+            var currentBranch;
             var refs = nafra.splitLines(data);
             if (id == "remote-branches") {
                 refs = refs.map(function(ref) {
@@ -196,7 +197,7 @@ nafra.createProcessView = function(mainView) {
 
             if (refs.length > 0) {
                 var idx = refs.indexOf('origin/master');
-                var currentBranch = refs[idx];
+                currentBranch = refs[idx];
                 var branches = [];
                 for (var i = 0; i < refs.length; ++i) {
                     var ref = refs[i];
@@ -248,17 +249,23 @@ nafra.createProcessView = function(mainView) {
                 $(section).remove();
             }
 
-            var checkoutBranch = currentBranch.replace('origin/','');
-            nafra.current_branch = checkoutBranch;
-            nafra.process('git', 'checkout ' + checkoutBranch, function(data) {
-                nafra.process('git', 'pull', function(data) {
-                    new nafra.finishInit(self);
-                    console.log(data);
-                    nafra.showDialog('info', data);
+            var checkoutBranch = (currentBranch) ? currentBranch.replace('origin/','') : null;
+            if (checkoutBranch != null) {
+                nafra.current_branch = checkoutBranch;
+                nafra.process('git', 'checkout ' + checkoutBranch, function(data) {
+                    nafra.process('git', 'pull', function(data) {
+                        new nafra.finishInit(self);
+                        console.log(data);
+                        nafra.showDialog('info', data);
+                    });
                 });
-            });
-
-            self.mainView.commitView.update(currentBranch);
+    
+                self.mainView.commitView.update(currentBranch);
+            }
+            else {
+                console.log('there is a problem regarding your openvpn credentials cannot connect right now.');
+                nafra.showMessage('alert', 'there is a problem regarding your openvpn credentials cannot connect right now.');
+            }
         });
     };
 
