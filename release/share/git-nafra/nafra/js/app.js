@@ -181,8 +181,8 @@ nafra.createProcessView = function(mainView) {
 
     self.fetchBranches = function(section, title, id, gitCommand) {
         nafra.process('git', gitCommand, function(data) {
-            var currentBranch;
             var refs = nafra.splitLines(data);
+            var currentBranch = refs;
             if (id == "remote-branches") {
                 refs = refs.map(function(ref) {
                     var end = ref.lastIndexOf(' -> ');
@@ -196,12 +196,13 @@ nafra.createProcessView = function(mainView) {
             }
 
             if (refs.length > 0) {
-                var idx = refs.indexOf('origin/master');
-                currentBranch = refs[idx];
+                var idx = refs.indexOf('origin/HZN_4');
                 var branches = [];
+                currentBranch = refs[idx];
+
                 for (var i = 0; i < refs.length; ++i) {
                     var ref = refs[i];
-                    if (ref.indexOf('origin/codereview') < 0 && ref.indexOf('origin/release') < 0 && ref.indexOf('origin/HEAD') < 0) {
+                    if (ref.indexOf('origin/codereview') < 0 && ref.indexOf('origin/release') < 0 && ref.indexOf('origin/HEAD') < 0 && ref.indexOf('origin/master') < 0 && ref.indexOf('origin/rel/') < 0) {
                         if (ref[2] == '(' && ref[ref.length - 1] == ')') {
                             // This is a '(detached from XXXXXX)'
                             var newref = ref.substring(ref.lastIndexOf(' ') + 1, ref.length - 1)
