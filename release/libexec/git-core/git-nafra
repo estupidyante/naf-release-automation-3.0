@@ -211,22 +211,19 @@ class NAFRARequestHandler(SimpleHTTPRequestHandler):
 			self.end_headers()
 		# Convention : send first all qit output, the stderr.
 		# Finally we add footers: a blank line followed by key / value pairs as in HTTP headers
-		if IS_WINDOWS:
-			# On windows we cannot pipe the process output directly to the socket
-			nafra_process = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = NAFRARequestHandler.REPO_ROOT, env = env)
-			nafra_process.stdin.write(stdin)
-			nafra_process.stdin.close()
-			bufferlen = 64 * 1024
-			while True:
-				data = nafra_process.stdout.read(bufferlen)
-				self.wfile.write(data)
-				if len(data) < bufferlen:
-					break
-			stderr = nafra_process.stderr.read()
-			nafra_process.wait()
-		else:
-			nafra_process = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = NAFRARequestHandler.REPO_ROOT, env = env)
-			stdout, stderr = nafra_process.communicate(stdin)
+
+		# On windows we cannot pipe the process output directly to the socket
+		nafra_process = subprocess.Popen(cmd, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = NAFRARequestHandler.REPO_ROOT, env = env)
+		nafra_process.stdin.write(stdin)
+		nafra_process.stdin.close()
+		bufferlen = 64 * 1024
+		while True:
+			data = nafra_process.stdout.read(bufferlen)
+			self.wfile.write(data)
+			if len(data) < bufferlen:
+				break
+		stderr = nafra_process.stderr.read()
+		nafra_process.wait()
 
 		if add_footers:
 			self.wfile.write(stderr)
