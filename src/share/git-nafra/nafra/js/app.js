@@ -202,7 +202,17 @@ nafra.createProcessView = function(mainView) {
 
                 for (var i = 0; i < refs.length; ++i) {
                     var ref = refs[i];
-                    if (ref.indexOf('origin/codereview') < 0 && ref.indexOf('origin/release') < 0 && ref.indexOf('origin/HEAD') < 0 && ref.indexOf('origin/master') < 0 && ref.indexOf('origin/rel/') < 0) {
+                    // do not include some branches not needed for the release
+                    if (ref.indexOf('origin/codereview') < 0 && 
+                        ref.indexOf('origin/release') < 0 && 
+                        ref.indexOf('origin/HEAD') < 0 && 
+                        ref.indexOf('origin/master') < 0 && 
+                        ref.indexOf('origin/rel') < 0 && 
+                        ref.indexOf('origin/feature') < 0 && 
+                        ref.indexOf('origin/vtrDawn') < 0 && 
+                        ref.indexOf('origin/vtr') < 0 && 
+                        ref.indexOf('origin/refactor') < 0) {
+
                         if (ref[2] == '(' && ref[ref.length - 1] == ')') {
                             // This is a '(detached from XXXXXX)'
                             var newref = ref.substring(ref.lastIndexOf(' ') + 1, ref.length - 1)
