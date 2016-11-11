@@ -264,7 +264,7 @@ nafra.createProcessView = function(mainView) {
             }
             else {
                 console.log('there is a problem regarding your openvpn credentials cannot connect right now.');
-                nafra.showDialog('error', 'there is a problem regarding your openvpn credentials cannot connect right now.');
+                nafra.showMessage('alert', 'there is a problem regarding your openvpn credentials cannot connect right now.');
             }
         });
     };
