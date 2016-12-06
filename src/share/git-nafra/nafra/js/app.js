@@ -366,7 +366,7 @@ nafra.finishInit = function(mainView) {
                 current_tile_area_scheme = scheme;
                 localStorage.setItem('tile-area-scheme', scheme);
         
-                showSettings();
+                // showSettings();
             });
         });
 
